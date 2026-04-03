@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark Purple Theme - Default */
+    --background: 270 50% 5%;
+    --foreground: 270 10% 98%;
+    --card: 270 40% 8%;
+    --card-foreground: 270 10% 98%;
+    --popover: 270 40% 8%;
+    --popover-foreground: 270 10% 98%;
+    --primary: 270 70% 60%;
+    --primary-foreground: 270 10% 98%;
+    --secondary: 270 30% 15%;
+    --secondary-foreground: 270 10% 98%;
+    --muted: 270 20% 18%;
+    --muted-foreground: 270 10% 65%;
+    --accent: 280 60% 55%;
+    --accent-foreground: 270 10% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 270 10% 98%;
+    --border: 270 20% 18%;
+    --input: 270 20% 15%;
+    --ring: 270 70% 60%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: hsl(270 70% 60% / 0.3);
+  color: hsl(270 10% 98%);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(270 40% 8%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(270 70% 60%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(270 70% 70%);
+}
+
+/* Gradient text */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400;
+}
+
+/* Glow effects */
+.glow-purple {
+  box-shadow: 0 0 20px hsl(270 70% 60% / 0.3),
+              0 0 40px hsl(270 70% 60% / 0.1);
+}
+
+.glow-purple-sm {
+  box-shadow: 0 0 10px hsl(270 70% 60% / 0.2);
+}
+
+/* Card hover effect */
+.card-hover {
+  @apply transition-all duration-300 ease-out hover:-translate-y-1;
+}
+
+.card-hover:hover {
+  box-shadow: 0 10px 40px hsl(270 70% 60% / 0.15);
+}
+
+/* Glass morphism */
+.glass {
+  background: hsl(270 40% 8% / 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(270 20% 18%);
+}
