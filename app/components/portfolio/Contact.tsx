@@ -99,7 +99,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   setIsSubmitting(true);
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000); // 30 sec timeout
+  const timeout = setTimeout(() => controller.abort(), 60000); // 60 sec timeout
 
   try {
     const response = await fetch(
@@ -117,12 +117,14 @@ const handleSubmit = async (e: React.FormEvent) => {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
-    await response.json();
+    const result = await response.json();
+    console.log("✅ Message sent successfully:", result);
 
     setSubmitted(true);
+
     setFormData({
       name: "",
       email: "",
@@ -133,9 +135,17 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     setTimeout(() => setSubmitted(false), 5000);
-  } catch (error) {
-    console.error(error);
-    alert("Server slow hai 😅\nPlease try again in few seconds.");
+  } catch (error: any) {
+    clearTimeout(timeout);
+
+    if (error.name === "AbortError") {
+      alert(
+        "The server is taking too long to respond. Please try again after a few seconds."
+      );
+    } else {
+      console.error("❌ Error:", error);
+      alert("Failed to send message. Please try again.");
+    }
   } finally {
     setIsSubmitting(false);
   }
