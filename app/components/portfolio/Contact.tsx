@@ -95,9 +95,11 @@ export default function Contact() {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  if (isSubmitting) return; // double click prevent
-
+  if (isSubmitting) return;
   setIsSubmitting(true);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000); // 30 sec timeout
 
   try {
     const response = await fetch(
@@ -108,22 +110,19 @@ const handleSubmit = async (e: React.FormEvent) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+        signal: controller.signal,
       }
     );
 
-    // Handle non-200 response
+    clearTimeout(timeout);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Error ${response.status}`);
+      throw new Error(`Error ${response.status}`);
     }
 
-    const result = await response.json();
-    console.log("✅ Message sent:", result);
+    await response.json();
 
-    // Success UI
     setSubmitted(true);
-
-    // Reset form
     setFormData({
       name: "",
       email: "",
@@ -133,14 +132,10 @@ const handleSubmit = async (e: React.FormEvent) => {
       message: "",
     });
 
-    // Hide success after 5 sec
     setTimeout(() => setSubmitted(false), 5000);
-  } catch (error: any) {
-    console.error("❌ Error:", error.message);
-
-    alert(
-      "Message send nahi hua 😕\n\nPlease try again after few seconds (server may be waking up)."
-    );
+  } catch (error) {
+    console.error(error);
+    alert("Server slow hai 😅\nPlease try again in few seconds.");
   } finally {
     setIsSubmitting(false);
   }
@@ -316,7 +311,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      "Sending..."
+                      "Sending... (please wait 30 sec)"
                     ) : (
                       <>
                         Send Message
