@@ -69,29 +69,82 @@ export default function Contact() {
   //   // Reset success message after 5 seconds
   //   setTimeout(() => setSubmitted(false), 5000)
   // }
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setIsSubmitting(true)
+//   const handleSubmit = async (e: React.FormEvent) => {
+//   e.preventDefault()
+//   setIsSubmitting(true)
+
+//   try {
+//    const res = await fetch("https://portfolio-website-backend-lzk3.onrender.com/api/contact", {
+//   method: "POST",
+//   headers: {
+//     "Content-Type": "application/json"
+//   },
+//   body: JSON.stringify(formData)
+// });
+
+//     if (res.ok) {
+//       setSubmitted(true)
+//       setFormData({ name: "", email: "", phone: "", company: "", subject: "", message: "" })
+//     }
+//   } catch (error) {
+//     console.error("Error:", error)
+//   }
+
+//   setIsSubmitting(false)
+// }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (isSubmitting) return; // double click prevent
+
+  setIsSubmitting(true);
 
   try {
-   const res = await fetch("https://portfolio-website-backend-lzk3.onrender.com/api/contact", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(formData)
-});
+    const response = await fetch(
+      "https://portfolio-website-backend-lzk3.onrender.com/api/contact",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }
+    );
 
-    if (res.ok) {
-      setSubmitted(true)
-      setFormData({ name: "", email: "", phone: "", company: "", subject: "", message: "" })
+    // Handle non-200 response
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || `Error ${response.status}`);
     }
-  } catch (error) {
-    console.error("Error:", error)
-  }
 
-  setIsSubmitting(false)
-}
+    const result = await response.json();
+    console.log("✅ Message sent:", result);
+
+    // Success UI
+    setSubmitted(true);
+
+    // Reset form
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      subject: "",
+      message: "",
+    });
+
+    // Hide success after 5 sec
+    setTimeout(() => setSubmitted(false), 5000);
+  } catch (error: any) {
+    console.error("❌ Error:", error.message);
+
+    alert(
+      "Message send nahi hua 😕\n\nPlease try again after few seconds (server may be waking up)."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -182,11 +235,11 @@ export default function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Your Name</Label>
+                      <Label htmlFor="name">Your Full Name</Label>
                       <Input
                         id="name"
                         name="name"
-                        placeholder="John Doe"
+                        placeholder="Enter You Full Name"
                         value={formData.name}
                         onChange={handleChange}
                         required
@@ -199,7 +252,7 @@ export default function Contact() {
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="john@example.com"
+                        placeholder="email@example.com"
                         value={formData.email}
                         onChange={handleChange}
                         required
