@@ -27,7 +27,7 @@ const certificates = [
     date: "22 Nov 2025",
     certificateNo: "JP/19677/13640",
     type: "Course Certificate",
-    image: "/certificates/BECIL.png",
+    image: "/certificates/Becil.png",
   },
   {
     id: 3,
