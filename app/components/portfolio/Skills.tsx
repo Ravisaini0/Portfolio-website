@@ -5,7 +5,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { API_BASE_URL } from "@/lib/api"
 
-const skillCategories = [
+type Skill = {
+  name: string
+  level: number
+}
+
+type SkillCategory = {
+  title: string
+  skills: Skill[]
+}
+
+const fallbackCategories: SkillCategory[] = [
   {
     title: "Frontend",
     skills: [
@@ -34,23 +44,26 @@ const skillCategories = [
       { name: "VS Code", level: 85 },
       { name: "Eclipse", level: 80 },
     ]
+  },
+  {
+    title: "AI Tools",
+    skills: [
+      { name: "ChatGPT", level: 85 },
+      { name: "GitHub Copilot", level: 80 },
+      { name: "Gemini", level: 75 },
+      { name: "Cursor", level: 75 },
+    ]
   }
 ]
 
-const allSkills = [
-  "HTML", "CSS", "JavaScript", "React", "Bootstrap",
-  "Java", "Spring Boot", "REST APIs", "MySQL",
-  "GitHub", "OOP", "JDBC"
-]
+const preferredCategoryOrder = ["Frontend", "Backend", "Database & Tools", "AI Tools"]
 
 export default function Skills() {
   const [content, setContent] = useState({
     skillsTitle: "My Technical Skills",
-    skillsDescription: "A comprehensive set of technical skills spanning frontend, backend, and database technologies.",
-    frontendSkills: "HTML:90,CSS:85,JavaScript:80,React:75,Bootstrap:85",
-    backendSkills: "Java:85,Spring Boot:80,REST APIs:80,Servlets:75,JDBC:75",
-    toolsSkills: "MySQL:80,GitHub:80,VS Code:85,Eclipse:80",
+    skillsDescription: "A comprehensive set of technical skills spanning frontend, backend, database, tools, and AI productivity platforms.",
   })
+  const [categories, setCategories] = useState<SkillCategory[]>(fallbackCategories)
 
   useEffect(() => {
     Promise.all([
@@ -62,34 +75,28 @@ export default function Skills() {
         if (Array.isArray(skills) && skills.length > 0) {
           const byCategory = skills.reduce((acc, skill) => {
             const category = skill.category || "Other"
-            acc[category] = [...(acc[category] || []), `${skill.name}:${skill.level || 70}`]
+            acc[category] = [...(acc[category] || []), {
+              name: skill.name || "Skill",
+              level: Number(skill.level) || 70,
+            }]
             return acc
-          }, {} as Record<string, string[]>)
+          }, {} as Record<string, Skill[]>)
 
-          setContent((prev) => ({
-            ...prev,
-            frontendSkills: byCategory.Frontend?.join(",") || prev.frontendSkills,
-            backendSkills: byCategory.Backend?.join(",") || prev.backendSkills,
-            toolsSkills: (byCategory["Database & Tools"] || byCategory.Tools)?.join(",") || prev.toolsSkills,
-          }))
+          const orderedCategories: SkillCategory[] = (Object.entries(byCategory) as [string, Skill[]][])
+            .sort(([first], [second]) => {
+              const firstIndex = preferredCategoryOrder.indexOf(first)
+              const secondIndex = preferredCategoryOrder.indexOf(second)
+              return (firstIndex === -1 ? 99 : firstIndex) - (secondIndex === -1 ? 99 : secondIndex)
+            })
+            .map(([title, categorySkills]) => ({ title, skills: categorySkills }))
+
+          setCategories(orderedCategories)
         }
       })
       .catch(() => {})
   }, [])
 
-  const parseSkills = (value: string) =>
-    value.split(",").map((item) => {
-      const [name, level] = item.split(":")
-      return { name: name?.trim() || "Skill", level: Number(level) || 70 }
-    }).filter((skill) => skill.name)
-
-  const dynamicCategories = useMemo(() => [
-    { title: "Frontend", skills: parseSkills(content.frontendSkills) },
-    { title: "Backend", skills: parseSkills(content.backendSkills) },
-    { title: "Database & Tools", skills: parseSkills(content.toolsSkills) },
-  ], [content.frontendSkills, content.backendSkills, content.toolsSkills])
-
-  const dynamicAllSkills = dynamicCategories.flatMap((category) => category.skills.map((skill) => skill.name))
+  const dynamicAllSkills = useMemo(() => categories.flatMap((category) => category.skills.map((skill) => skill.name)), [categories])
   const titleParts = content.skillsTitle.split(" ")
   const titlePrefix = titleParts.slice(0, -2).join(" ") || "My"
   const titleAccent = titleParts.slice(-2).join(" ") || "Technical Skills"
@@ -122,8 +129,8 @@ export default function Skills() {
         </div>
 
         {/* Skill Categories with Progress */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {dynamicCategories.map((category, categoryIndex) => (
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {categories.map((category, categoryIndex) => (
             <Card key={categoryIndex} className="bg-card border-border/50 card-hover">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-6 text-center text-gradient">{category.title}</h3>

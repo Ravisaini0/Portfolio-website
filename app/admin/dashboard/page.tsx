@@ -150,7 +150,7 @@ const emptyExperience: Experience = {
 }
 
 const emptySkill: Skill = {
-  category: "Frontend",
+  category: "AI Tools",
   name: "",
   level: 80,
 }
@@ -521,7 +521,7 @@ export default function AdminDashboardPage() {
               <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
                 <AdminSection
                   title={skillForm.id ? "Edit Skill" : "Add Skill"}
-                  description="Individual skill add/edit/delete karo. Category: Frontend, Backend, Database & Tools."
+                  description="Individual skill add/edit/delete karo. Category examples: Frontend, Backend, Database & Tools, AI Tools."
                   status={sectionStatus.skills}
                   actionLabel={skillForm.id ? "Update skill" : "Add skill"}
                   busy={busySection === "skills"}
