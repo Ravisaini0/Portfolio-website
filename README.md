@@ -39,13 +39,6 @@ The admin dashboard is available at:
 http://localhost:3000/admin
 ```
 
-Default local admin login:
-
-```text
-Username: admin
-Password: admin123
-```
-
 Admin can manage:
 
 - Profile information
