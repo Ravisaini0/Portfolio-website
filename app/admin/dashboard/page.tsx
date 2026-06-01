@@ -768,9 +768,18 @@ function EmptyText({ children }: { children: React.ReactNode }) {
 }
 
 function AdminListItem({ title, subtitle, image, onEdit, onDelete }: { title: string; subtitle?: string; image?: string; onEdit?: () => void; onDelete: () => void }) {
+  const [imageFailed, setImageFailed] = useState(false)
+
   return (
     <div className="flex items-center gap-4 rounded-lg border border-border/50 bg-background/50 p-3">
-      {image && <img src={image} alt="" className="h-14 w-14 rounded object-cover" />}
+      {image && !imageFailed && (
+        <img
+          src={image}
+          alt=""
+          className="h-14 w-14 rounded object-cover"
+          onError={() => setImageFailed(true)}
+        />
+      )}
       <div className="min-w-0 flex-1">
         <h3 className="truncate font-medium">{title}</h3>
         {subtitle && <p className="truncate text-sm text-muted-foreground">{subtitle}</p>}
