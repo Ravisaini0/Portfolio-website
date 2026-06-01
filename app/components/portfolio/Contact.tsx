@@ -9,6 +9,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:8081"
+    : "https://portfolio-website-backend-lzk3.onrender.com")
+
 const contactInfo = [
   {
     icon: Mail,
@@ -103,7 +109,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   try {
     const response = await fetch(
-      "https://portfolio-website-backend-lzk3.onrender.com/api/contact",
+      `${API_BASE_URL}/api/contact`,
       {
         method: "POST",
         headers: {
@@ -121,7 +127,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     const result = await response.json();
-    console.log("✅ Message sent successfully:", result);
+    console.log("Message sent successfully:", result);
 
     setSubmitted(true);
 
@@ -143,7 +149,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         "The server is taking too long to respond. Please try again after a few seconds."
       );
     } else {
-      console.error("❌ Error:", error);
+      console.error("Error:", error);
       alert("Failed to send message. Please try again.");
     }
   } finally {

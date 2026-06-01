@@ -1,7 +1,9 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { API_BASE_URL } from "@/lib/api"
 
 const skillCategories = [
   {
@@ -43,6 +45,56 @@ const allSkills = [
 ]
 
 export default function Skills() {
+  const [content, setContent] = useState({
+    skillsTitle: "My Technical Skills",
+    skillsDescription: "A comprehensive set of technical skills spanning frontend, backend, and database technologies.",
+    frontendSkills: "HTML:90,CSS:85,JavaScript:80,React:75,Bootstrap:85",
+    backendSkills: "Java:85,Spring Boot:80,REST APIs:80,Servlets:75,JDBC:75",
+    toolsSkills: "MySQL:80,Git:75,GitHub:80,VS Code:85,Eclipse:80",
+  })
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API_BASE_URL}/api/profile`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`${API_BASE_URL}/api/skills`).then((res) => (res.ok ? res.json() : [])),
+    ])
+      .then(([profile, skills]) => {
+        if (profile) setContent((prev) => ({ ...prev, ...profile }))
+        if (Array.isArray(skills) && skills.length > 0) {
+          const byCategory = skills.reduce((acc, skill) => {
+            const category = skill.category || "Other"
+            acc[category] = [...(acc[category] || []), `${skill.name}:${skill.level || 70}`]
+            return acc
+          }, {} as Record<string, string[]>)
+
+          setContent((prev) => ({
+            ...prev,
+            frontendSkills: byCategory.Frontend?.join(",") || prev.frontendSkills,
+            backendSkills: byCategory.Backend?.join(",") || prev.backendSkills,
+            toolsSkills: (byCategory["Database & Tools"] || byCategory.Tools)?.join(",") || prev.toolsSkills,
+          }))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const parseSkills = (value: string) =>
+    value.split(",").map((item) => {
+      const [name, level] = item.split(":")
+      return { name: name?.trim() || "Skill", level: Number(level) || 70 }
+    }).filter((skill) => skill.name)
+
+  const dynamicCategories = useMemo(() => [
+    { title: "Frontend", skills: parseSkills(content.frontendSkills) },
+    { title: "Backend", skills: parseSkills(content.backendSkills) },
+    { title: "Database & Tools", skills: parseSkills(content.toolsSkills) },
+  ], [content.frontendSkills, content.backendSkills, content.toolsSkills])
+
+  const dynamicAllSkills = dynamicCategories.flatMap((category) => category.skills.map((skill) => skill.name))
+  const titleParts = content.skillsTitle.split(" ")
+  const titlePrefix = titleParts.slice(0, -2).join(" ") || "My"
+  const titleAccent = titleParts.slice(-2).join(" ") || "Technical Skills"
+
   return (
     <section id="skills" className="py-20 px-4 bg-card/30">
       <div className="max-w-6xl mx-auto">
@@ -51,16 +103,16 @@ export default function Skills() {
             Skills
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            My <span className="text-gradient">Technical Skills</span>
+            {titlePrefix} <span className="text-gradient">{titleAccent}</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            A comprehensive set of technical skills spanning frontend, backend, and database technologies.
+            {content.skillsDescription}
           </p>
         </div>
 
         {/* Skill Tags */}
         <div className="flex flex-wrap justify-center gap-3 mb-16">
-          {allSkills.map((skill, index) => (
+          {dynamicAllSkills.map((skill, index) => (
             <span
               key={index}
               className="px-4 py-2 bg-card border border-border/50 rounded-full text-sm font-medium text-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all cursor-default"
@@ -72,7 +124,7 @@ export default function Skills() {
 
         {/* Skill Categories with Progress */}
         <div className="grid md:grid-cols-3 gap-6">
-          {skillCategories.map((category, categoryIndex) => (
+          {dynamicCategories.map((category, categoryIndex) => (
             <Card key={categoryIndex} className="bg-card border-border/50 card-hover">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-6 text-center text-gradient">{category.title}</h3>

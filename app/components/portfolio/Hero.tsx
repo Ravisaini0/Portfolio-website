@@ -1,10 +1,31 @@
 "use client"
 
-import Image from "next/image"
-import { Github, Mail, Phone, Linkedin, Download, ArrowDown } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Github, Mail, Phone, Linkedin, ArrowDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { API_BASE_URL, absoluteAssetUrl } from "@/lib/api"
+
+const defaultProfile = {
+  fullName: "Ravi Saini",
+  role: "Java Full Stack Developer",
+  bio: "Passionate about building responsive websites and REST APIs. Skilled in Java, Spring Boot, React, and MySQL. Always eager to solve real-world problems through code.",
+  email: "ravisaini61245@gmail.com",
+  phone: "+91 7877940013",
+  githubUrl: "https://github.com/Ravisaini0",
+  linkedinUrl: "https://www.linkedin.com/in/ravi-saini-822300396",
+  profileImageUrl: "/images/ravi-profile.jpeg",
+}
 
 export default function Hero() {
+  const [profile, setProfile] = useState(defaultProfile)
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/profile`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setProfile({ ...defaultProfile, ...data }))
+      .catch(() => {})
+  }, [])
+
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-20">
       {/* Background gradient effects */}
@@ -17,13 +38,10 @@ export default function Hero() {
           {/* Profile Image */}
           <div className="relative">
             <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary/30 glow-purple">
-              <Image
-                src="/images/ravi-profile.jpeg"
-                alt="Ravi Saini"
-                width={320}
-                height={320}
+              <img
+                src={absoluteAssetUrl(profile.profileImageUrl) || defaultProfile.profileImageUrl}
+                alt={profile.fullName}
                 className="w-full h-full object-cover object-center scale-110"
-                priority
               />
             </div>
             <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg glow-purple-sm">
@@ -35,31 +53,30 @@ export default function Hero() {
           <div className="text-center lg:text-left flex-1">
             <p className="text-primary font-medium mb-2 tracking-wide uppercase text-sm">Hello, I&apos;m</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              <span className="text-gradient">Ravi Saini</span>
+              <span className="text-gradient">{profile.fullName}</span>
             </h1>
             <h2 className="text-xl md:text-2xl text-muted-foreground mb-6">
-              Java Full Stack Developer
+              {profile.role}
             </h2>
             <p className="text-muted-foreground max-w-lg mb-8 leading-relaxed">
-              Passionate about building responsive websites and REST APIs. Skilled in Java, Spring Boot, React, and MySQL. 
-              Always eager to solve real-world problems through code.
+              {profile.bio}
             </p>
 
             {/* Contact Info */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center lg:justify-start">
               <a 
-                href="mailto:ravisaini61245@gmail.com"
+                href={`mailto:${profile.email}`}
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                <span className="text-sm">ravisaini61245@gmail.com</span>
+                <span className="text-sm">{profile.email}</span>
               </a>
               <a 
-                href="tel:+917877940013"
+                href={`tel:${profile.phone}`}
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                <span className="text-sm">+91 7877940013</span>
+                <span className="text-sm">{profile.phone}</span>
               </a>
             </div>
 
@@ -69,13 +86,13 @@ export default function Hero() {
                 <a href="#contact">Get In Touch</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-full px-8 border-primary/50 hover:bg-primary/10">
-                <a href="https://github.com/Ravisaini0" target="_blank" rel="noopener noreferrer">
+                <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">
                   <Github className="w-4 h-4 mr-2" />
                   GitHub
                 </a>
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-full px-8 border-primary/50 hover:bg-primary/10">
-                <a href="https://www.linkedin.com/in/ravi-saini-822300396" target="_blank" rel="noopener noreferrer">
+                <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer">
                   <Linkedin className="w-4 h-4 mr-2" />
                   LinkedIn
                 </a>

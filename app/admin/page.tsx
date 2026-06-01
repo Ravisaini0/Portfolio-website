@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { ArrowLeft } from "lucide-react"
+import { API_BASE_URL } from "@/lib/api"
 
 export default function AdminPage() {
 
@@ -13,7 +15,7 @@ export default function AdminPage() {
 
     try {
 
-      const res = await fetch("https://portfolio-website-backend-lzk3.onrender.com/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -30,22 +32,29 @@ export default function AdminPage() {
 
         localStorage.setItem("token", data.token)
 
-        setMessage("Login Successful ✅")
+        setMessage("Login successful")
 
         window.location.href = "/admin/dashboard"
 
       } else {
-        setMessage(data.message)
+        setMessage(data.message ?? "Login failed")
       }
 
     } catch (error) {
-      setMessage("Server Error")
+      setMessage("Server error. Please check backend is running.")
     }
   }
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+    <div className="min-h-screen flex items-center justify-center bg-black px-4 text-white">
+      <a
+        href="/"
+        className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-purple-500/50 px-4 py-2 text-sm text-purple-100 transition hover:bg-purple-500/10"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to website
+      </a>
 
       <form
         onSubmit={handleLogin}

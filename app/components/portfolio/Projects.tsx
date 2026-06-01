@@ -1,9 +1,11 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { ExternalLink, Github, ShoppingCart, Shirt, Database } from "lucide-react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { API_BASE_URL, absoluteAssetUrl } from "@/lib/api"
 
 const projects = [
   {
@@ -29,7 +31,34 @@ const projects = [
   }
 ]
 
+const defaultProjectTitles = new Set(projects.map((project) => project.title))
+
 export default function Projects() {
+  const [items, setItems] = useState(projects)
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/projects`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const backendProjects = data
+            .filter((project) => !defaultProjectTitles.has(project.title))
+            .map((project) => ({
+            icon: Database,
+            title: project.title,
+            description: project.description,
+            technologies: String(project.technologies || "").split(",").map((tech) => tech.trim()).filter(Boolean),
+            color: "from-purple-500/20 to-pink-500/20",
+            githubUrl: project.githubUrl,
+            liveUrl: project.liveUrl,
+            imageUrl: project.imageUrl,
+          }))
+          setItems([...projects, ...backendProjects])
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <section id="projects" className="py-20 px-4 bg-background">
       <div className="max-w-6xl mx-auto">
@@ -46,15 +75,19 @@ export default function Projects() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
+          {items.map((project: any, index) => (
             <Card key={index} className="bg-card border-border/50 card-hover group overflow-hidden relative">
               {/* Gradient accent */}
               <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${project.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
               
               <CardContent className="p-6">
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${project.color} flex items-center justify-center mb-4`}>
-                  <project.icon className="w-7 h-7 text-primary" />
-                </div>
+                {project.imageUrl ? (
+                  <img src={absoluteAssetUrl(project.imageUrl)} alt={project.title} className="mb-4 h-36 w-full rounded-lg object-cover" />
+                ) : (
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${project.color} flex items-center justify-center mb-4`}>
+                    <project.icon className="w-7 h-7 text-primary" />
+                  </div>
+                )}
                 <h3 className="font-semibold text-foreground text-lg mb-3 group-hover:text-primary transition-colors">
                   {project.title}
                 </h3>
@@ -62,7 +95,7 @@ export default function Projects() {
                   {project.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech, techIndex) => (
+                    {project.technologies.map((tech: string, techIndex: number) => (
                     <Badge key={techIndex} variant="secondary" className="text-xs font-normal bg-secondary/50">
                       {tech}
                     </Badge>
@@ -71,9 +104,9 @@ export default function Projects() {
               </CardContent>
               <CardFooter className="px-6 pb-6 pt-0">
                 <Button variant="outline" size="sm" className="w-full border-primary/50 hover:bg-primary/10" asChild>
-                  <a href="https://github.com/Ravisaini0" target="_blank" rel="noopener noreferrer">
-                    <Github className="w-4 h-4 mr-2" />
-                    View on GitHub
+                  <a href={project.githubUrl || project.liveUrl || "https://github.com/Ravisaini0"} target="_blank" rel="noopener noreferrer">
+                    {project.liveUrl && !project.githubUrl ? <ExternalLink className="w-4 h-4 mr-2" /> : <Github className="w-4 h-4 mr-2" />}
+                    View Work
                   </a>
                 </Button>
               </CardFooter>

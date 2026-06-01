@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Briefcase, GraduationCap, Code2, Users } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { API_BASE_URL } from "@/lib/api"
 
 const highlights = [
   {
@@ -28,6 +30,46 @@ const highlights = [
 ]
 
 export default function About() {
+  const [aboutItems, setAboutItems] = useState(highlights)
+  const [experiences, setExperiences] = useState([{
+    id: 1,
+    title: "API Integration Specialist",
+    companyPeriod: "Growbizz.io | Dec 2025 - Mar 2026",
+    description: "Integrated APIs and collaborated with team members while maintaining a professional and positive work attitude. Demonstrated strong technical expertise.",
+  }])
+  const [content, setContent] = useState({
+    aboutTitle: "Know Who I Am",
+    aboutDescription: "I'm a Java Full Stack Developer with hands-on experience in building web applications and REST APIs. I have a strong foundation in both frontend and backend technologies, and I'm passionate about creating efficient, scalable solutions.",
+    highlightExperience: highlights[0].description,
+    highlightSkills: highlights[1].description,
+    highlightEducation: highlights[2].description,
+    highlightTeamwork: highlights[3].description,
+    workTitle: "API Integration Specialist",
+    workCompanyPeriod: "Growbizz.io | Dec 2025 - Mar 2026",
+    workDescription: "Integrated APIs and collaborated with team members while maintaining a professional and positive work attitude. Demonstrated strong technical expertise.",
+  })
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API_BASE_URL}/api/profile`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`${API_BASE_URL}/api/about-items`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`${API_BASE_URL}/api/experiences`).then((res) => (res.ok ? res.json() : [])),
+    ])
+      .then(([profile, items, work]) => {
+        if (profile) setContent((prev) => ({ ...prev, ...profile }))
+        if (Array.isArray(items) && items.length > 0) {
+          const iconMap = [Briefcase, Code2, GraduationCap, Users]
+          setAboutItems(items.map((item, index) => ({
+            icon: iconMap[index % iconMap.length],
+            title: item.title,
+            description: item.description,
+          })))
+        }
+        if (Array.isArray(work) && work.length > 0) setExperiences(work)
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <section id="about" className="py-20 px-4 bg-background">
       <div className="max-w-6xl mx-auto">
@@ -36,17 +78,15 @@ export default function About() {
             About Me
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Know <span className="text-gradient">Who I Am</span>
+            {content.aboutTitle.split(" ").slice(0, -2).join(" ") || "Know"} <span className="text-gradient">{content.aboutTitle.split(" ").slice(-2).join(" ") || "Who I Am"}</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            I&apos;m a Java Full Stack Developer with hands-on experience in building web applications 
-            and REST APIs. I have a strong foundation in both frontend and backend technologies, 
-            and I&apos;m passionate about creating efficient, scalable solutions.
+            {content.aboutDescription}
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {highlights.map((item, index) => (
+          {aboutItems.map((item, index) => (
             <Card key={index} className="bg-card border-border/50 card-hover group">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
@@ -69,17 +109,18 @@ export default function About() {
             Work <span className="text-gradient">Experience</span>
           </h3>
           <div className="space-y-6">
-            <div className="flex gap-4">
+            {experiences.map((experience) => (
+            <div key={experience.id} className="flex gap-4">
               <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 mt-2 flex-shrink-0 glow-purple-sm"></div>
               <div className="flex-1 pl-6 -ml-[7px]">
-                <h4 className="font-semibold text-foreground">API Integration Specialist</h4>
-                <p className="text-primary text-sm mb-2">Growbizz.io | Dec 2025 - Mar 2026</p>
+                <h4 className="font-semibold text-foreground">{experience.title}</h4>
+                <p className="text-primary text-sm mb-2">{experience.companyPeriod}</p>
                 <p className="text-muted-foreground text-sm">
-                  Integrated APIs and collaborated with team members while maintaining a professional 
-                  and positive work attitude. Demonstrated strong technical expertise.
+                  {experience.description}
                 </p>
               </div>
             </div>
+            ))}
           </div>
         </div>
       </div>

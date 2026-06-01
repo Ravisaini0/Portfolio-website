@@ -1,8 +1,7 @@
 import "./globals.css"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
-import PortfolioHeader from "./components/portfolio/Header"
-import PortfolioFooter from "./components/portfolio/Footer"
+import SiteChrome from "./components/portfolio/SiteChrome"
 import type React from "react"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -22,9 +21,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <PortfolioHeader />
-          <main>{children}</main>
-          <PortfolioFooter />
+          <SiteChrome>{children}</SiteChrome>
         </ThemeProvider>
       </body>
     </html>

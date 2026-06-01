@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useEffect } from "react"
 import { Award, Calendar, MapPin, X } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { API_BASE_URL, absoluteAssetUrl } from "@/lib/api"
 
 const certificates = [
   {
@@ -45,6 +47,22 @@ const certificates = [
 
 export default function Certificates() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [items, setItems] = useState(certificates)
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/certificates`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setItems(data.map((cert) => ({
+            ...cert,
+            title: cert.title || cert.name,
+            image: absoluteAssetUrl(cert.imageUrl || cert.filePath),
+          })))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <>
@@ -69,7 +87,7 @@ export default function Certificates() {
 
           {/* Certificates Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {certificates.map((cert, index) => (
+            {items.map((cert, index) => (
               <Card
                 key={cert.id}
                 className="bg-card border-border/50 card-hover group relative overflow-hidden"
