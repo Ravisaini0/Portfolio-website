@@ -76,22 +76,16 @@ export default function Projects() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((project: any, index) => (
-            <Card key={index} className="bg-card border-border/50 card-hover group overflow-hidden relative">
+            <Card key={index} className="bg-card border-border/50 card-hover group overflow-hidden relative flex h-full flex-col">
               {/* Gradient accent */}
               <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${project.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
               
-              <CardContent className="p-6">
-                {project.imageUrl ? (
-                  <img src={absoluteAssetUrl(project.imageUrl)} alt={project.title} className="mb-4 h-36 w-full rounded-lg object-cover" />
-                ) : (
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${project.color} flex items-center justify-center mb-4`}>
-                    <project.icon className="w-7 h-7 text-primary" />
-                  </div>
-                )}
+              <CardContent className="flex flex-1 flex-col p-6">
+                <ProjectMedia project={project} />
                 <h3 className="font-semibold text-foreground text-lg mb-3 group-hover:text-primary transition-colors">
                   {project.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-1">
                   {project.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -142,5 +136,27 @@ export default function Projects() {
         </div>
       </div>
     </section>
+  )
+}
+
+function ProjectMedia({ project }: { project: any }) {
+  const [failed, setFailed] = useState(false)
+  const imageUrl = project.imageUrl && !failed ? absoluteAssetUrl(project.imageUrl) : ""
+
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={project.title}
+        className="mb-5 aspect-video w-full rounded-lg border border-border/50 object-cover"
+        onError={() => setFailed(true)}
+      />
+    )
+  }
+
+  return (
+    <div className={`mb-5 flex aspect-video w-full items-center justify-center rounded-lg bg-gradient-to-br ${project.color}`}>
+      <project.icon className="h-10 w-10 text-primary" />
+    </div>
   )
 }
