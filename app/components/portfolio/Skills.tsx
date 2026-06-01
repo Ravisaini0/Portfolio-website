@@ -43,6 +43,7 @@ const fallbackCategories: SkillCategory[] = [
       { name: "GitHub", level: 80 },
       { name: "VS Code", level: 85 },
       { name: "Eclipse", level: 80 },
+      { name: "Intellij", level: 80 },
     ]
   },
   {
@@ -51,12 +52,31 @@ const fallbackCategories: SkillCategory[] = [
       { name: "ChatGPT", level: 85 },
       { name: "GitHub Copilot", level: 80 },
       { name: "Gemini", level: 75 },
-      { name: "Cursor", level: 75 },
+      { name: "Cloude Code", level: 75 },
+      { name: "Codex", level: 80 },
     ]
   }
 ]
 
 const preferredCategoryOrder = ["Frontend", "Backend", "Database & Tools", "AI Tools"]
+
+const mergeWithRequiredCategories = (loadedCategories: SkillCategory[]) => {
+  const categoryMap = new Map<string, SkillCategory>()
+
+  fallbackCategories.forEach((category) => {
+    categoryMap.set(category.title, category)
+  })
+
+  loadedCategories.forEach((category) => {
+    categoryMap.set(category.title, category)
+  })
+
+  return Array.from(categoryMap.values()).sort((first, second) => {
+    const firstIndex = preferredCategoryOrder.indexOf(first.title)
+    const secondIndex = preferredCategoryOrder.indexOf(second.title)
+    return (firstIndex === -1 ? 99 : firstIndex) - (secondIndex === -1 ? 99 : secondIndex)
+  })
+}
 
 export default function Skills() {
   const [content, setContent] = useState({
@@ -90,7 +110,7 @@ export default function Skills() {
             })
             .map(([title, categorySkills]) => ({ title, skills: categorySkills }))
 
-          setCategories(orderedCategories)
+          setCategories(mergeWithRequiredCategories(orderedCategories))
         }
       })
       .catch(() => {})
