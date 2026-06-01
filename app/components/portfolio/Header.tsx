@@ -26,9 +26,9 @@ export default function PortfolioHeader() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+      className={`sticky top-0 z-50 transition-colors duration-200 ${isScrolled
           ? "glass shadow-lg"
-          : "bg-transparent"
+          : "bg-background/95 md:bg-transparent"
         }`}
     >
       <div className="max-w-6xl mx-auto px-4">

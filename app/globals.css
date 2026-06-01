@@ -105,14 +105,13 @@ img {
   display: block;
 }
 
-section,
-article,
-.card-hover {
-  backface-visibility: hidden;
-}
-
 @media (hover: none), (max-width: 768px) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .card-hover {
+    transition: none !important;
     transform: none !important;
   }
 
@@ -129,5 +128,14 @@ article,
   .glow-purple,
   .glow-purple-sm {
     box-shadow: none;
+  }
+
+  .mobile-solid-surface {
+    background-image: none !important;
+    background-color: hsl(270 30% 14%) !important;
+  }
+
+  .mobile-hide-accent {
+    display: none !important;
   }
 }

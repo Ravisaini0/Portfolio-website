@@ -78,7 +78,7 @@ export default function Projects() {
           {items.map((project: any, index) => (
             <Card key={index} className="bg-card border-border/50 card-hover group overflow-hidden relative flex h-full flex-col">
               {/* Gradient accent */}
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${project.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
+              <div className={`mobile-hide-accent absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${project.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
               
               <CardContent className="flex flex-1 flex-col p-6">
                 <ProjectMedia project={project} />
@@ -157,7 +157,7 @@ function ProjectMedia({ project }: { project: any }) {
   }
 
   return (
-    <div className={`mb-5 flex aspect-video w-full items-center justify-center rounded-lg bg-gradient-to-br ${project.color}`}>
+    <div className={`mobile-solid-surface mb-5 flex aspect-video w-full items-center justify-center rounded-lg bg-gradient-to-br ${project.color}`}>
       <project.icon className="h-10 w-10 text-primary" />
     </div>
   )
