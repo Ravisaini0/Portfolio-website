@@ -30,7 +30,6 @@ const skillCategories = [
     title: "Database & Tools",
     skills: [
       { name: "MySQL", level: 80 },
-      { name: "Git", level: 75 },
       { name: "GitHub", level: 80 },
       { name: "VS Code", level: 85 },
       { name: "Eclipse", level: 80 },
@@ -41,7 +40,7 @@ const skillCategories = [
 const allSkills = [
   "HTML", "CSS", "JavaScript", "React", "Bootstrap",
   "Java", "Spring Boot", "REST APIs", "MySQL",
-  "Git", "GitHub", "OOP", "JDBC"
+  "GitHub", "OOP", "JDBC"
 ]
 
 export default function Skills() {
@@ -50,7 +49,7 @@ export default function Skills() {
     skillsDescription: "A comprehensive set of technical skills spanning frontend, backend, and database technologies.",
     frontendSkills: "HTML:90,CSS:85,JavaScript:80,React:75,Bootstrap:85",
     backendSkills: "Java:85,Spring Boot:80,REST APIs:80,Servlets:75,JDBC:75",
-    toolsSkills: "MySQL:80,Git:75,GitHub:80,VS Code:85,Eclipse:80",
+    toolsSkills: "MySQL:80,GitHub:80,VS Code:85,Eclipse:80",
   })
 
   useEffect(() => {
