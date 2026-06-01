@@ -148,6 +148,8 @@ function ProjectMedia({ project }: { project: any }) {
       <img
         src={imageUrl}
         alt={project.title}
+        loading="lazy"
+        decoding="async"
         className="mb-5 aspect-video w-full rounded-lg border border-border/50 object-cover"
         onError={() => setFailed(true)}
       />

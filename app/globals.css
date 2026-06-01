@@ -35,6 +35,9 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -96,4 +99,35 @@ html {
   background: hsl(270 40% 8% / 0.8);
   backdrop-filter: blur(12px);
   border: 1px solid hsl(270 20% 18%);
+}
+
+img {
+  display: block;
+}
+
+section,
+article,
+.card-hover {
+  backface-visibility: hidden;
+}
+
+@media (hover: none), (max-width: 768px) {
+  .card-hover {
+    transform: none !important;
+  }
+
+  .card-hover:hover {
+    box-shadow: none;
+  }
+
+  .glass {
+    background: hsl(270 40% 8% / 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .glow-purple,
+  .glow-purple-sm {
+    box-shadow: none;
+  }
 }

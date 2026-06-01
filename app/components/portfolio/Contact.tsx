@@ -8,12 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.NODE_ENV === "development"
-    ? "http://localhost:8081"
-    : "https://portfolio-website-backend-lzk3.onrender.com")
+import { API_BASE_URL } from "@/lib/api"
 
 const contactInfo = [
   {
@@ -61,43 +56,6 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   setIsSubmitting(true)
-    
-  //   // Simulate form submission
-  //   await new Promise(resolve => setTimeout(resolve, 1000))
-    
-  //   setSubmitted(true)
-  //   setIsSubmitting(false)
-  //   setFormData({ name: "", email: "",  phone: "",  company: "", subject: "", message: "" })
-    
-  //   // Reset success message after 5 seconds
-  //   setTimeout(() => setSubmitted(false), 5000)
-  // }
-//   const handleSubmit = async (e: React.FormEvent) => {
-//   e.preventDefault()
-//   setIsSubmitting(true)
-
-//   try {
-//    const res = await fetch("https://portfolio-website-backend-lzk3.onrender.com/api/contact", {
-//   method: "POST",
-//   headers: {
-//     "Content-Type": "application/json"
-//   },
-//   body: JSON.stringify(formData)
-// });
-
-//     if (res.ok) {
-//       setSubmitted(true)
-//       setFormData({ name: "", email: "", phone: "", company: "", subject: "", message: "" })
-//     }
-//   } catch (error) {
-//     console.error("Error:", error)
-//   }
-
-//   setIsSubmitting(false)
-// }
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
@@ -126,9 +84,6 @@ const handleSubmit = async (e: React.FormEvent) => {
       throw new Error(`Request failed with status ${response.status}`);
     }
 
-    const result = await response.json();
-    console.log("Message sent successfully:", result);
-
     setSubmitted(true);
 
     setFormData({
@@ -149,7 +104,6 @@ const handleSubmit = async (e: React.FormEvent) => {
         "The server is taking too long to respond. Please try again after a few seconds."
       );
     } else {
-      console.error("Error:", error);
       alert("Failed to send message. Please try again.");
     }
   } finally {

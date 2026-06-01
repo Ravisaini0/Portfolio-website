@@ -35,11 +35,10 @@ export default function Contact() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(_values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
     // Simulate API call
     setTimeout(() => {
-      console.log(values)
       setIsSubmitting(false)
       toast({
         title: "Message sent!",
