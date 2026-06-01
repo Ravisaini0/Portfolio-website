@@ -52,7 +52,7 @@ const fallbackCategories: SkillCategory[] = [
       { name: "ChatGPT", level: 85 },
       { name: "GitHub Copilot", level: 80 },
       { name: "Gemini", level: 75 },
-      { name: "Cloude Code", level: 75 },
+      { name: "Claude Code", level: 75 },
       { name: "Codex", level: 80 },
     ]
   }
