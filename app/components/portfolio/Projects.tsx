@@ -102,13 +102,26 @@ export default function Projects() {
                   ))}
                 </div>
               </CardContent>
-              <CardFooter className="px-6 pb-6 pt-0">
-                <Button variant="outline" size="sm" className="w-full border-primary/50 hover:bg-primary/10" asChild>
-                  <a href={project.githubUrl || project.liveUrl || "https://github.com/Ravisaini0"} target="_blank" rel="noopener noreferrer">
-                    {project.liveUrl && !project.githubUrl ? <ExternalLink className="w-4 h-4 mr-2" /> : <Github className="w-4 h-4 mr-2" />}
+              <CardFooter className="grid grid-cols-1 gap-3 px-6 pb-6 pt-0 sm:grid-cols-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={project.liveUrl ? "w-full border-primary/50 hover:bg-primary/10" : "w-full border-primary/50 hover:bg-primary/10 sm:col-span-2"}
+                  asChild
+                >
+                  <a href={project.githubUrl || "https://github.com/Ravisaini0"} target="_blank" rel="noopener noreferrer">
+                    <Github className="w-4 h-4 mr-2" />
                     View Work
                   </a>
                 </Button>
+                {project.liveUrl && (
+                  <Button variant="default" size="sm" className="w-full" asChild>
+                    <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Website
+                    </a>
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}
