@@ -45,6 +45,7 @@ type Project = {
   githubUrl: string
   liveUrl: string
   imageUrl: string
+  section?: string
 }
 
 type Certificate = {
@@ -124,6 +125,7 @@ const emptyProject: Project = {
   githubUrl: "",
   liveUrl: "",
   imageUrl: "",
+  section: "work",
 }
 
 const emptyCertificate: Certificate = {
@@ -154,6 +156,12 @@ const emptySkill: Skill = {
   name: "",
   level: 80,
 }
+
+const defaultProjectTitles = new Set([
+  "Laundry Management System",
+  "E-Commerce Platform",
+  "CRUD Application",
+])
 
 export default function AdminDashboardPage() {
   const [token, setToken] = useState("")
@@ -261,17 +269,25 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const saveProject = async () => {
-    setBusySection("work")
+  const getProjectSection = (project: Project) => {
+    if (project.section === "project" || project.section === "work") return project.section
+    return defaultProjectTitles.has(project.title) ? "project" : "work"
+  }
+
+  const projectItems = projects.filter((project) => getProjectSection(project) === "project")
+  const workItems = projects.filter((project) => getProjectSection(project) === "work")
+
+  const saveProject = async (section: "project" | "work") => {
+    setBusySection(section)
     try {
       const res = await fetch(`${API_BASE_URL}/api/projects`, {
         method: "POST",
         headers: authHeaders,
-        body: JSON.stringify(projectForm),
+        body: JSON.stringify({ ...projectForm, section }),
       })
-      setMessage("work", res.ok ? (projectForm.id ? "Work/project updated successfully." : "Work/project saved successfully.") : "Project save failed.")
+      setMessage(section, res.ok ? (projectForm.id ? "Saved item updated successfully." : "Saved item added successfully.") : "Save failed.")
       if (res.ok) {
-        setProjectForm(emptyProject)
+        setProjectForm({ ...emptyProject, section })
         loadDashboard()
       }
     } finally {
@@ -406,7 +422,8 @@ export default function AdminDashboardPage() {
             <TabsTrigger value="about" className="justify-start"><FileText className="mr-2 h-4 w-4" />About Section</TabsTrigger>
             <TabsTrigger value="experience" className="justify-start"><Briefcase className="mr-2 h-4 w-4" />Work Experience</TabsTrigger>
             <TabsTrigger value="skills" className="justify-start"><Wrench className="mr-2 h-4 w-4" />Skills Section</TabsTrigger>
-            <TabsTrigger value="work" className="justify-start"><Sparkles className="mr-2 h-4 w-4" />Projects / Work</TabsTrigger>
+            <TabsTrigger value="projects" className="justify-start"><Sparkles className="mr-2 h-4 w-4" />Projects</TabsTrigger>
+            <TabsTrigger value="work" className="justify-start"><Upload className="mr-2 h-4 w-4" />Work Uploads</TabsTrigger>
             <TabsTrigger value="certificates" className="justify-start"><Award className="mr-2 h-4 w-4" />Certificates</TabsTrigger>
             <TabsTrigger value="messages" className="justify-start"><Mail className="mr-2 h-4 w-4" />Messages</TabsTrigger>
           </TabsList>
@@ -557,9 +574,9 @@ export default function AdminDashboardPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="work">
+            <TabsContent value="projects">
               <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
-                <AdminSection title={projectForm.id ? "Edit Work / Project" : "Upload Work / Project"} description="Portfolio project add/update karo, optional image upload ke saath." status={sectionStatus.work} actionLabel={projectForm.id ? "Update work" : "Save work"} busy={busySection === "work"} onSave={saveProject}>
+                <AdminSection title={projectForm.id ? "Edit Project" : "Add Project"} description="Portfolio ke project cards yahan se manage karo." status={sectionStatus.project} actionLabel={projectForm.id ? "Update project" : "Save project"} busy={busySection === "project"} onSave={() => saveProject("project")}>
                   <div className="space-y-4">
                     <TextField label="Title" value={projectForm.title} onChange={(value) => setProjectForm({ ...projectForm, title: value })} />
                     <TextAreaField label="Description" value={projectForm.description} onChange={(value) => setProjectForm({ ...projectForm, description: value })} />
@@ -567,27 +584,66 @@ export default function AdminDashboardPage() {
                     <TextField label="GitHub URL" value={projectForm.githubUrl} onChange={(value) => setProjectForm({ ...projectForm, githubUrl: value })} />
                     <TextField label="Live URL" value={projectForm.liveUrl} onChange={(value) => setProjectForm({ ...projectForm, liveUrl: value })} />
                     <FileField label="Project image" current={projectForm.imageUrl} onUpload={async (file) => {
-                      const url = await uploadFile(file, "work")
+                      const url = await uploadFile(file, "project")
                       if (url) setProjectForm({ ...projectForm, imageUrl: url })
                     }} />
                     {projectForm.id && (
-                      <Button variant="outline" type="button" onClick={() => setProjectForm(emptyProject)}>
+                      <Button variant="outline" type="button" onClick={() => setProjectForm({ ...emptyProject, section: "project" })}>
                         Cancel edit
                       </Button>
                     )}
                   </div>
                 </AdminSection>
-                <ListPanel title="Uploaded Work">
-                  {projects.length === 0 && <EmptyText>No work uploaded yet.</EmptyText>}
-                  {projects.map((project) => (
+                <ListPanel title="Projects">
+                  {projectItems.length === 0 && <EmptyText>No projects yet.</EmptyText>}
+                  {projectItems.map((project) => (
                     <AdminListItem
                       key={project.id}
                       title={project.title}
                       subtitle={project.technologies}
                       image={absoluteAssetUrl(project.imageUrl)}
                       onEdit={() => {
-                        setProjectForm(project)
-                        setMessage("work", "Editing selected project. Update fields and save.")
+                        setProjectForm({ ...project, section: "project" })
+                        setMessage("project", "Editing selected project. Update fields and save.")
+                      }}
+                      onDelete={() => deleteItem(`/api/projects/${project.id}`, "project")}
+                    />
+                  ))}
+                </ListPanel>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="work">
+              <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
+                <AdminSection title={projectForm.id ? "Edit Work Upload" : "Add Work Upload"} description="Client work, live websites aur uploaded work yahan manage karo." status={sectionStatus.work} actionLabel={projectForm.id ? "Update work" : "Save work"} busy={busySection === "work"} onSave={() => saveProject("work")}>
+                  <div className="space-y-4">
+                    <TextField label="Work title" value={projectForm.title} onChange={(value) => setProjectForm({ ...projectForm, title: value })} />
+                    <TextAreaField label="Description" value={projectForm.description} onChange={(value) => setProjectForm({ ...projectForm, description: value })} />
+                    <TextField label="Technologies" value={projectForm.technologies} onChange={(value) => setProjectForm({ ...projectForm, technologies: value })} />
+                    <TextField label="GitHub URL" value={projectForm.githubUrl} onChange={(value) => setProjectForm({ ...projectForm, githubUrl: value })} />
+                    <TextField label="Live website URL" value={projectForm.liveUrl} onChange={(value) => setProjectForm({ ...projectForm, liveUrl: value })} />
+                    <FileField label="Work image" current={projectForm.imageUrl} onUpload={async (file) => {
+                      const url = await uploadFile(file, "work")
+                      if (url) setProjectForm({ ...projectForm, imageUrl: url })
+                    }} />
+                    {projectForm.id && (
+                      <Button variant="outline" type="button" onClick={() => setProjectForm({ ...emptyProject, section: "work" })}>
+                        Cancel edit
+                      </Button>
+                    )}
+                  </div>
+                </AdminSection>
+                <ListPanel title="Work Uploads">
+                  {workItems.length === 0 && <EmptyText>No work uploads yet.</EmptyText>}
+                  {workItems.map((project) => (
+                    <AdminListItem
+                      key={project.id}
+                      title={project.title}
+                      subtitle={project.technologies}
+                      image={absoluteAssetUrl(project.imageUrl)}
+                      onEdit={() => {
+                        setProjectForm({ ...project, section: "work" })
+                        setMessage("work", "Editing selected work item. Update fields and save.")
                       }}
                       onDelete={() => deleteItem(`/api/projects/${project.id}`, "work")}
                     />
@@ -771,20 +827,20 @@ function AdminListItem({ title, subtitle, image, onEdit, onDelete }: { title: st
   const [imageFailed, setImageFailed] = useState(false)
 
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-border/50 bg-background/50 p-3">
+    <div className="flex min-w-0 items-center gap-4 rounded-lg border border-border/50 bg-background/50 p-3">
       {image && !imageFailed && (
         <img
           src={image}
           alt=""
-          className="h-14 w-14 rounded object-cover"
+          className="h-14 w-14 shrink-0 rounded object-cover"
           onError={() => setImageFailed(true)}
         />
       )}
       <div className="min-w-0 flex-1">
         <h3 className="truncate font-medium">{title}</h3>
-        {subtitle && <p className="truncate text-sm text-muted-foreground">{subtitle}</p>}
+        {subtitle && <p className="break-words text-sm text-muted-foreground">{subtitle}</p>}
       </div>
-      <div className="flex items-center gap-1">
+      <div className="ml-auto flex shrink-0 items-center gap-1">
         {onEdit && (
           <Button size="icon" variant="ghost" onClick={onEdit} aria-label="Edit">
             <Pencil className="h-4 w-4" />
