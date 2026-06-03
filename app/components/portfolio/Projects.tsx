@@ -76,12 +76,12 @@ export default function Projects() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((project: any, index) => (
-            <Card key={index} className="bg-card border-border/50 card-hover group overflow-hidden relative flex h-full flex-col">
+            <Card key={index} className="project-card bg-card border-border/50 card-hover group overflow-hidden relative flex h-full flex-col">
               {/* Gradient accent */}
               <div className={`mobile-hide-accent absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${project.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
               
               <CardContent className="flex flex-1 flex-col p-6">
-                <ProjectMedia project={project} />
+                <ProjectMedia project={project} priority={index < 3} />
                 <h3 className="font-semibold text-foreground text-lg mb-3 group-hover:text-primary transition-colors">
                   {project.title}
                 </h3>
@@ -139,26 +139,29 @@ export default function Projects() {
   )
 }
 
-function ProjectMedia({ project }: { project: any }) {
+function ProjectMedia({ project, priority }: { project: any; priority?: boolean }) {
   const [failed, setFailed] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const imageUrl = project.imageUrl && !failed ? absoluteAssetUrl(project.imageUrl) : ""
 
-  if (imageUrl) {
-    return (
+  return (
+    <div className={`project-media mobile-solid-surface relative mb-5 aspect-video w-full overflow-hidden rounded-lg border border-border/50 bg-gradient-to-br ${project.color}`}>
+      {imageUrl ? (
       <img
         src={imageUrl}
         alt={project.title}
-        loading="lazy"
-        decoding="async"
-        className="mb-5 aspect-video w-full rounded-lg border border-border/50 object-cover"
+        loading={priority ? "eager" : "lazy"}
+        decoding="sync"
+        className={`absolute inset-0 h-full w-full object-cover ${loaded ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />
-    )
-  }
-
-  return (
-    <div className={`mobile-solid-surface mb-5 flex aspect-video w-full items-center justify-center rounded-lg bg-gradient-to-br ${project.color}`}>
-      <project.icon className="h-10 w-10 text-primary" />
+      ) : null}
+      {(!imageUrl || !loaded) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-secondary/50">
+          <project.icon className="h-10 w-10 text-primary" />
+        </div>
+      )}
     </div>
   )
 }

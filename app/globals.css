@@ -105,6 +105,15 @@ img {
   display: block;
 }
 
+.project-card {
+  isolation: isolate;
+}
+
+.project-media {
+  background-color: hsl(270 30% 14%);
+  contain: paint;
+}
+
 @media (hover: none), (max-width: 768px) {
   html {
     scroll-behavior: auto;
@@ -137,5 +146,25 @@ img {
 
   .mobile-hide-accent {
     display: none !important;
+  }
+
+  #projects {
+    background: hsl(var(--background)) !important;
+  }
+
+  .project-card {
+    contain: layout paint;
+    isolation: isolate;
+    box-shadow: none !important;
+  }
+
+  .project-media {
+    background-image: none !important;
+    transform: none !important;
+  }
+
+  .project-media img {
+    transform: none !important;
+    will-change: auto !important;
   }
 }

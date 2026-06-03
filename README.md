@@ -127,3 +127,4 @@ npm run start
 - Admin routes require a valid JWT token from backend login.
 - Public website sections use backend content when available and fallback content when backend is empty.
 - Uploaded images/files are served by the backend from the `uploads` folder.
+- In production, use the admin `Permanent image URL` field with a stable public image URL, or configure persistent backend storage. Free hosting restarts/redeploys can remove local uploaded files.

@@ -163,6 +163,51 @@ const defaultProjectTitles = new Set([
   "CRUD Application",
 ])
 
+async function optimizeImageForUpload(file: File) {
+  if (!file.type.startsWith("image/") || file.type === "image/svg+xml" || file.type === "image/gif") {
+    return file
+  }
+
+  const imageUrl = URL.createObjectURL(file)
+
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = reject
+      img.src = imageUrl
+    })
+
+    const maxWidth = 1400
+    const maxHeight = 900
+    const scale = Math.min(1, maxWidth / image.width, maxHeight / image.height)
+
+    if (scale >= 1 && file.size <= 900 * 1024) {
+      return file
+    }
+
+    const canvas = document.createElement("canvas")
+    canvas.width = Math.max(1, Math.round(image.width * scale))
+    canvas.height = Math.max(1, Math.round(image.height * scale))
+
+    const context = canvas.getContext("2d")
+    if (!context) return file
+
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, "image/jpeg", 0.82)
+    })
+
+    if (!blob) return file
+
+    const cleanName = file.name.replace(/\.[^.]+$/, "")
+    return new File([blob], `${cleanName}.jpg`, { type: "image/jpeg" })
+  } finally {
+    URL.revokeObjectURL(imageUrl)
+  }
+}
+
 export default function AdminDashboardPage() {
   const [token, setToken] = useState("")
   const [profile, setProfile] = useState<Profile>(emptyProfile)
@@ -246,8 +291,10 @@ export default function AdminDashboardPage() {
   const uploadFile = async (file: File, section: string) => {
     setBusySection(section)
     try {
+      setMessage(section, "Image optimize ho rahi hai...")
+      const optimizedFile = await optimizeImageForUpload(file)
       const data = new FormData()
-      data.append("file", file)
+      data.append("file", optimizedFile)
       const res = await fetch(`${API_BASE_URL}/api/uploads`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -583,7 +630,8 @@ export default function AdminDashboardPage() {
                     <TextField label="Technologies" value={projectForm.technologies} onChange={(value) => setProjectForm({ ...projectForm, technologies: value })} />
                     <TextField label="GitHub URL" value={projectForm.githubUrl} onChange={(value) => setProjectForm({ ...projectForm, githubUrl: value })} />
                     <TextField label="Live URL" value={projectForm.liveUrl} onChange={(value) => setProjectForm({ ...projectForm, liveUrl: value })} />
-                    <FileField label="Project image" current={projectForm.imageUrl} onUpload={async (file) => {
+                    <TextField label="Permanent image URL" value={projectForm.imageUrl} onChange={(value) => setProjectForm({ ...projectForm, imageUrl: value })} />
+                    <FileField label="Upload project image" current={projectForm.imageUrl} onUpload={async (file) => {
                       const url = await uploadFile(file, "project")
                       if (url) setProjectForm({ ...projectForm, imageUrl: url })
                     }} />
@@ -622,7 +670,8 @@ export default function AdminDashboardPage() {
                     <TextField label="Technologies" value={projectForm.technologies} onChange={(value) => setProjectForm({ ...projectForm, technologies: value })} />
                     <TextField label="GitHub URL" value={projectForm.githubUrl} onChange={(value) => setProjectForm({ ...projectForm, githubUrl: value })} />
                     <TextField label="Live website URL" value={projectForm.liveUrl} onChange={(value) => setProjectForm({ ...projectForm, liveUrl: value })} />
-                    <FileField label="Work image" current={projectForm.imageUrl} onUpload={async (file) => {
+                    <TextField label="Permanent image URL" value={projectForm.imageUrl} onChange={(value) => setProjectForm({ ...projectForm, imageUrl: value })} />
+                    <FileField label="Upload work image" current={projectForm.imageUrl} onUpload={async (file) => {
                       const url = await uploadFile(file, "work")
                       if (url) setProjectForm({ ...projectForm, imageUrl: url })
                     }} />
